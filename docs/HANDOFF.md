@@ -1,0 +1,37 @@
+# HANDOFF — proof-first-normalizer
+
+This tool normalizes CSV inputs deterministically and produces a clean output + an error file.
+
+## Build
+
+```bash
+go test ./...
+make build VERSION=v0.1.0
+./bin/normalizer version
+```
+
+## Run (v0.1.0)
+
+```bash
+# Normalize a CSV
+normalizer normalize --in raw.csv --schema schema.json --out outdir
+
+# Validate without outputting files
+normalizer validate --in raw.csv --schema schema.json
+
+# Run the demo
+normalizer demo --out outdir
+```
+
+## Definition of Done
+
+- `go test -count=1 ./...` passes
+- Fixtures + golden outputs committed
+- Deterministic outputs (LF, stable ordering)
+- Version embedded via ldflags
+
+## What this tool is NOT
+
+- No services/daemons
+- No Docker requirement
+- No network calls

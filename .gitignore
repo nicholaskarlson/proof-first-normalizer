@@ -1,0 +1,6 @@
+/bin/
+/out/
+/tmp_in/
+*.patch
+*.tmp
+.DS_Store
