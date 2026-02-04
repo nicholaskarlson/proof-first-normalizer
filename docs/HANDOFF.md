@@ -19,7 +19,7 @@ normalizer normalize --in raw.csv --schema schema.json --out outdir
 # Validate without outputting files
 normalizer validate --in raw.csv --schema schema.json
 
-# Run the demo
+# Run the demo (runs fixture cases and verifies outputs match goldens)
 normalizer demo --out outdir
 ```
 

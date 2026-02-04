@@ -1,0 +1,6 @@
+row,field,code,message,value
+3,date,ERR_DATE,invalid date (want YYYY-MM-DD),2026-02-30
+4,description,ERR_REQUIRED,required value missing,
+5,amount,ERR_DECIMAL,invalid decimal,12.3.4
+6,,ERR_COLUMNS,wrong number of columns,2
+7,,ERR_COLUMNS,wrong number of columns,4

@@ -1,0 +1,19 @@
+{
+  "tool": "proof-first-normalizer",
+  "version": "dev",
+  "input": "case02_errors",
+  "schema": "fixtures/input/case02_errors/schema.json",
+  "rows_total": 7,
+  "rows_ok": 2,
+  "rows_error": 5,
+  "cols": 3,
+  "sha256_input": "f410effa6785c2440978ee895da3892d8c10223842e9e945d926ebed334b8151",
+  "sha256_schema": "139246b170f6ef89cea9bc00f6867661bf7d32b0fe86e863bb95b75c343516ea",
+  "sha256_normalized": "fe96f4ad9805916bffd4d8686275421e6f641af4e65b25eb9dfefacb70386cdb",
+  "sha256_errors": "3d48c38e8d7e39762452c741ad97db8140f181a75aaa0ff91d97d793673df444",
+  "generated_files": [
+    "normalized.csv",
+    "errors.csv",
+    "report.json"
+  ]
+}
