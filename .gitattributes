@@ -1,1 +1,4 @@
 * text=auto eol=lf
+
+# Preserve BOM/CRLF bytes for canonicalization fixture
+fixtures/input/case03_bom_crlf/raw.csv -text
