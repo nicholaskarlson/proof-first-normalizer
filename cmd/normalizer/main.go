@@ -1,9 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
+	"reflect"
+	"strings"
 
 	"github.com/nicholaskarlson/proof-first-normalizer/internal/normalizer"
 )
@@ -32,9 +37,7 @@ func main() {
 		cmdNormalize(os.Args[2:])
 
 	case "demo":
-		// v0.1.0 PR3: implement demo runner over fixtures
-		fmt.Println("demo: not implemented yet")
-		os.Exit(1)
+		cmdDemo(os.Args[2:])
 
 	default:
 		fmt.Println("Unknown command:", os.Args[1])
@@ -104,6 +107,133 @@ func cmdNormalize(args []string) {
 	os.Exit(0)
 }
 
+func cmdDemo(args []string) {
+	fs := flag.NewFlagSet("demo", flag.ContinueOnError)
+	outRoot := fs.String("out", "", "output root directory")
+	_ = fs.Parse(args)
+
+	if *outRoot == "" {
+		fmt.Println("demo: --out is required")
+		os.Exit(2)
+	}
+
+	root, err := findRepoRoot()
+	if err != nil {
+		fmt.Println("ERROR:", err)
+		os.Exit(2)
+	}
+
+	// Keep this list small; add more cases incrementally via separate PRs.
+	cases := []string{
+		"case01",
+		"case02_errors",
+	}
+
+	for _, c := range cases {
+		inCSV := filepath.Join(root, "fixtures", "input", c, "raw.csv")
+		schemaFile := filepath.Join(root, "fixtures", "input", c, "schema.json")
+		expDir := filepath.Join(root, "fixtures", "expected", c)
+		outDir := filepath.Join(*outRoot, c)
+
+		opt := normalizer.Options{
+			Tool:    "proof-first-normalizer",
+			Version: version,
+			Label:   c,
+			// record stable, repo-relative strings in report.json
+			Schema: filepath.ToSlash(filepath.Join("fixtures", "input", c, "schema.json")),
+			Input:  filepath.ToSlash(filepath.Join("fixtures", "input", c, "raw.csv")),
+		}
+
+		if _, err := normalizer.NormalizeCSV(inCSV, schemaFile, outDir, opt); err != nil {
+			fmt.Printf("ERROR: %s: %v\n", c, err)
+			os.Exit(2)
+		}
+
+		// Compare normalized/errors byte-for-byte.
+		for _, name := range []string{"normalized.csv", "errors.csv"} {
+			exp := filepath.Join(expDir, name)
+			got := filepath.Join(outDir, name)
+			eq, err := filesEqual(exp, got)
+			if err != nil {
+				fmt.Printf("ERROR: %s: %v\n", name, err)
+				os.Exit(2)
+			}
+			if !eq {
+				fmt.Printf("MISMATCH: %s (%s)\n", c, name)
+				os.Exit(1)
+			}
+		}
+
+		// Compare report.json structurally (ignore version so demo works on released binaries too).
+		expRep, err := readReport(filepath.Join(expDir, "report.json"))
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(2)
+		}
+		gotRep, err := readReport(filepath.Join(outDir, "report.json"))
+		if err != nil {
+			fmt.Println("ERROR:", err)
+			os.Exit(2)
+		}
+		if !reportsEqualIgnoringVersion(expRep, gotRep) {
+			fmt.Printf("MISMATCH: %s (report.json)\n", c)
+			os.Exit(1)
+		}
+	}
+
+	fmt.Printf("OK: demo outputs match fixtures (%d case(s))\n", len(cases))
+	os.Exit(0)
+}
+
+func filesEqual(a, b string) (bool, error) {
+	ab, err := os.ReadFile(a)
+	if err != nil {
+		return false, err
+	}
+	bb, err := os.ReadFile(b)
+	if err != nil {
+		return false, err
+	}
+	return bytes.Equal(ab, bb), nil
+}
+
+func readReport(path string) (normalizer.Report, error) {
+	b, err := os.ReadFile(path)
+	if err != nil {
+		return normalizer.Report{}, err
+	}
+	var r normalizer.Report
+	if err := json.Unmarshal(b, &r); err != nil {
+		return normalizer.Report{}, err
+	}
+	return r, nil
+}
+
+func reportsEqualIgnoringVersion(a, b normalizer.Report) bool {
+	a.Version = ""
+	b.Version = ""
+	return reflect.DeepEqual(a, b)
+}
+
+func findRepoRoot() (string, error) {
+	wd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	dir := wd
+	for i := 0; i < 10; i++ {
+		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
+			return dir, nil
+		}
+		parent := filepath.Dir(dir)
+		if parent == dir {
+			break
+		}
+		dir = parent
+	}
+	return "", fmt.Errorf("could not locate repo root from %s", wd)
+}
+
 func usage() {
 	fmt.Println("proof-first-normalizer")
 	fmt.Println()
@@ -112,4 +242,8 @@ func usage() {
 	fmt.Println("  normalizer validate  --in <raw.csv> --schema <schema.json> [--label <string>]")
 	fmt.Println("  normalizer demo      --out <dir>")
 	fmt.Println("  normalizer version   (--version, -v)")
+
+	fmt.Println()
+	fmt.Println("Demo cases:")
+	fmt.Println("  " + strings.Join([]string{"case01", "case02_errors"}, ", "))
 }
