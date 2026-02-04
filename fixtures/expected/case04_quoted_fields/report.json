@@ -1,0 +1,19 @@
+{
+  "tool": "proof-first-normalizer",
+  "version": "dev",
+  "input": "case04_quoted_fields",
+  "schema": "fixtures/input/case04_quoted_fields/schema.json",
+  "rows_total": 4,
+  "rows_ok": 4,
+  "rows_error": 0,
+  "cols": 4,
+  "sha256_input": "e2540beb7541643b01507899592fcd91dbf816b7e3d841643f44d1551965c44e",
+  "sha256_schema": "aec2c7202fcce8c656911642797848a04c27499e51e8bcebac5d4c6c71c9c417",
+  "sha256_normalized": "2d3ed430bca2f609ef57eba5619537f0be39188c00f80355c1e529e76e1109dc",
+  "sha256_errors": "1cfba74d6ae22b7d380e2b02c4c991450098d26bce4093a0d507b7e7ebaf906e",
+  "generated_files": [
+    "normalized.csv",
+    "errors.csv",
+    "report.json"
+  ]
+}

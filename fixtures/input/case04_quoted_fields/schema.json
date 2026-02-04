@@ -1,0 +1,8 @@
+{
+  "columns": [
+    {"name": "date", "type": "date", "required": true},
+    {"name": "description", "type": "string", "required": true},
+    {"name": "memo", "type": "string", "required": false},
+    {"name": "amount", "type": "decimal", "required": true}
+  ]
+}
