@@ -1,0 +1,5 @@
+date,description,tax,settled
+2026-02-01,No optional values,,
+2026-02-02,Optional decimal only,1.20,
+2026-02-03,Optional date only,,2026-02-04
+2026-02-05,Trim test,10.00,2026-02-06
