@@ -28,10 +28,15 @@ func LoadSchema(path string) (*Schema, []byte, error) {
 	if len(s.Columns) == 0 {
 		return nil, nil, fmt.Errorf("schema: columns must be non-empty")
 	}
+	seen := make(map[string]bool, len(s.Columns))
 	for i := range s.Columns {
 		if s.Columns[i].Name == "" {
 			return nil, nil, fmt.Errorf("schema: column[%d] name is empty", i)
 		}
+		if seen[s.Columns[i].Name] {
+			return nil, nil, fmt.Errorf("schema: duplicate column name %q", s.Columns[i].Name)
+		}
+		seen[s.Columns[i].Name] = true
 		switch s.Columns[i].Type {
 		case "string", "date", "decimal":
 		default:

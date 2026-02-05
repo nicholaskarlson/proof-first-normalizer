@@ -78,6 +78,12 @@ func ValidateCSV(inPath, schemaPath, _ string) (Result, []rowErr, error) {
 
 	hmap := make(map[string]int, len(header))
 	for i, h := range header {
+		if h == "" {
+			return Result{}, nil, fmt.Errorf("header has empty column name")
+		}
+		if _, ok := hmap[h]; ok {
+			return Result{}, nil, fmt.Errorf("header has duplicate column %q", h)
+		}
 		hmap[h] = i
 	}
 
@@ -220,6 +226,12 @@ func NormalizeCSV(inPath, schemaPath, outDir string, opt Options) (Result, error
 	}
 	hmap := make(map[string]int, len(header))
 	for i, h := range header {
+		if h == "" {
+			return Result{}, fmt.Errorf("header has empty column name")
+		}
+		if _, ok := hmap[h]; ok {
+			return Result{}, fmt.Errorf("header has duplicate column %q", h)
+		}
 		hmap[h] = i
 	}
 
