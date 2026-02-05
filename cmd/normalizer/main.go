@@ -150,10 +150,11 @@ func cmdDemo(args []string) {
 			Input:  filepath.ToSlash(filepath.Join("fixtures", "input", c, "raw.csv")),
 		}
 
+		_ = os.RemoveAll(outDir)
+
 		expErrPath := filepath.Join(expDir, "error.txt")
 		if b, err := os.ReadFile(expErrPath); err == nil {
 			// Expected failure case: NormalizeCSV must return an error matching fixtures/expected/<case>/error.txt.
-			_ = os.RemoveAll(outDir)
 			_, gotErr := normalizer.NormalizeCSV(inCSV, schemaFile, outDir, opt)
 			if gotErr == nil {
 				fmt.Printf("MISMATCH: %s expected failure but got success\n", c)
