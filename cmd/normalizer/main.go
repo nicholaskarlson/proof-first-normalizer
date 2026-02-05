@@ -133,6 +133,7 @@ func cmdDemo(args []string) {
 		"case05_optional_blanks",
 		"case06_dup_headers",
 		"case07_schema_dup_columns",
+		"case08_blank_lines",
 	}
 
 	for _, c := range cases {

@@ -36,6 +36,20 @@ type rowErr struct {
 	Value   string
 }
 
+
+func isBlankRecord(rec []string) bool {
+	if len(rec) == 0 {
+		return true
+	}
+	for _, f := range rec {
+		if strings.TrimSpace(f) != "" {
+			return false
+		}
+	}
+	return true
+}
+
+
 // Report is a struct (not a map) to guarantee stable JSON field ordering.
 type Report struct {
 	Tool             string   `json:"tool"`
@@ -115,6 +129,9 @@ func ValidateCSV(inPath, schemaPath, _ string) (Result, []rowErr, error) {
 			return Result{}, nil, fmt.Errorf("read row: %w", e)
 		}
 		rowNum++
+		if isBlankRecord(rec) {
+			continue
+		}
 		rowsTotal++
 
 		if len(rec) != len(header) {
@@ -273,6 +290,9 @@ func NormalizeCSV(inPath, schemaPath, outDir string, opt Options) (Result, error
 			return Result{}, fmt.Errorf("read row: %w", e)
 		}
 		rowNum++
+		if isBlankRecord(rec) {
+			continue
+		}
 		if bad[rowNum] {
 			continue
 		}
