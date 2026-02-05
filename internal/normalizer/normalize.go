@@ -268,6 +268,10 @@ func NormalizeCSV(inPath, schemaPath, outDir string, opt Options) (Result, error
 		outRec := make([]string, len(schema.Columns))
 		for i, c := range schema.Columns {
 			v := strings.TrimSpace(rec[colOrder[i]])
+			if v == "" {
+				outRec[i] = ""
+				continue
+			}
 			switch c.Type {
 			case "string":
 				outRec[i] = v

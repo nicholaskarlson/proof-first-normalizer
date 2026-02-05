@@ -129,6 +129,7 @@ func cmdDemo(args []string) {
 		"case02_errors",
 		"case03_bom_crlf",
 		"case04_quoted_fields",
+		"case05_optional_blanks",
 	}
 
 	for _, c := range cases {
