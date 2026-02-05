@@ -18,8 +18,12 @@ func writeFileAtomic(dir, name string, data []byte) error {
 		return err
 	}
 	if err := os.Rename(tmp, final); err != nil {
-		_ = os.Remove(tmp)
-		return err
+		// On Windows, Rename fails if the destination exists. Best-effort remove+retry.
+		_ = os.Remove(final)
+		if err2 := os.Rename(tmp, final); err2 != nil {
+			_ = os.Remove(tmp)
+			return err2
+		}
 	}
 	return nil
 }
