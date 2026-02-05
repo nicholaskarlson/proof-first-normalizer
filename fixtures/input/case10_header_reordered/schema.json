@@ -2,7 +2,6 @@
   "columns": [
     {"name": "date", "type": "date", "required": true},
     {"name": "description", "type": "string", "required": true},
-    {"name": "tax", "type": "decimal", "required": false},
-    {"name": "settled", "type": "date", "required": false}
+    {"name": "amount", "type": "decimal", "required": true}
   ]
 }

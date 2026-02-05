@@ -135,6 +135,7 @@ func cmdDemo(args []string) {
 		"case07_schema_dup_columns",
 		"case08_blank_lines",
 		"case09_ragged_rows",
+		"case10_header_reordered",
 	}
 
 
