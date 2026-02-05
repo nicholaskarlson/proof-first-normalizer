@@ -125,11 +125,14 @@ func cmdDemo(args []string) {
 
 	// Keep this list small; add more cases incrementally via separate PRs.
 	cases := []string{
+
 		"case01",
 		"case02_errors",
 		"case03_bom_crlf",
 		"case04_quoted_fields",
 		"case05_optional_blanks",
+		"case06_dup_headers",
+		"case07_schema_dup_columns",
 	}
 
 	for _, c := range cases {
@@ -145,6 +148,27 @@ func cmdDemo(args []string) {
 			// record stable, repo-relative strings in report.json
 			Schema: filepath.ToSlash(filepath.Join("fixtures", "input", c, "schema.json")),
 			Input:  filepath.ToSlash(filepath.Join("fixtures", "input", c, "raw.csv")),
+		}
+
+		expErrPath := filepath.Join(expDir, "error.txt")
+		if b, err := os.ReadFile(expErrPath); err == nil {
+			// Expected failure case: NormalizeCSV must return an error matching fixtures/expected/<case>/error.txt.
+			_ = os.RemoveAll(outDir)
+			_, gotErr := normalizer.NormalizeCSV(inCSV, schemaFile, outDir, opt)
+			if gotErr == nil {
+				fmt.Printf("MISMATCH: %s expected failure but got success\n", c)
+				os.Exit(1)
+			}
+			exp := strings.TrimSpace(string(b))
+			got := strings.TrimSpace(gotErr.Error())
+			if got != exp {
+				fmt.Printf("MISMATCH: %s (error)\n  got: %s\n  exp: %s\n", c, got, exp)
+				os.Exit(1)
+			}
+			continue
+		} else if err != nil && !os.IsNotExist(err) {
+			fmt.Printf("ERROR: %s: %v\n", c, err)
+			os.Exit(2)
 		}
 
 		if _, err := normalizer.NormalizeCSV(inCSV, schemaFile, outDir, opt); err != nil {
