@@ -125,7 +125,6 @@ func cmdDemo(args []string) {
 
 	// Keep this list small; add more cases incrementally via separate PRs.
 	cases := []string{
-
 		"case01",
 		"case02_errors",
 		"case03_bom_crlf",
@@ -139,8 +138,8 @@ func cmdDemo(args []string) {
 		"case11_header_extra_column",
 		"case12_header_whitespace",
 		"case13_dup_headers_after_trim",
+		"case14_header_only",
 	}
-
 
 	for _, c := range cases {
 		inCSV := filepath.Join(root, "fixtures", "input", c, "raw.csv")
