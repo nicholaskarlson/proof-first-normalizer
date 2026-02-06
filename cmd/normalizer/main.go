@@ -140,6 +140,7 @@ func cmdDemo(args []string) {
 		"case13_dup_headers_after_trim",
 		"case14_header_only",
 		"case15_invalid_utf8",
+		"case16_quoted_newline_reject",
 	}
 
 	for _, c := range cases {

@@ -1,0 +1,19 @@
+{
+  "columns": [
+    {
+      "name": "date",
+      "type": "date",
+      "required": true
+    },
+    {
+      "name": "description",
+      "type": "string",
+      "required": true
+    },
+    {
+      "name": "amount",
+      "type": "decimal",
+      "required": true
+    }
+  ]
+}
