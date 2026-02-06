@@ -151,6 +151,9 @@ func ValidateCSV(inPath, schemaPath, _ string) (Result, []rowErr, error) {
 		rowHasErr := false
 		for i, c := range schema.Columns {
 			v := strings.TrimSpace(rec[colOrder[i]])
+			if strings.ContainsAny(v, "\r\n") {
+				return Result{}, nil, fmt.Errorf("row %d: field %q contains newline", rowNum, c.Name)
+			}
 
 			if c.Required && v == "" {
 				rowHasErr = true
