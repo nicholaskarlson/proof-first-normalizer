@@ -138,7 +138,9 @@ func cmdDemo(args []string) {
 		"case10_header_reordered",
 		"case11_header_extra_column",
 		"case12_header_whitespace",
+		"case13_dup_headers_after_trim",
 	}
+
 
 	for _, c := range cases {
 		inCSV := filepath.Join(root, "fixtures", "input", c, "raw.csv")
