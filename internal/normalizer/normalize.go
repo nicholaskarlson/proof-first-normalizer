@@ -11,6 +11,7 @@ import (
 	"sort"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 type Options struct {
@@ -36,7 +37,6 @@ type rowErr struct {
 	Value   string
 }
 
-
 func isBlankRecord(rec []string) bool {
 	if len(rec) == 0 {
 		return true
@@ -48,7 +48,6 @@ func isBlankRecord(rec []string) bool {
 	}
 	return true
 }
-
 
 // Report is a struct (not a map) to guarantee stable JSON field ordering.
 type Report struct {
@@ -78,6 +77,9 @@ func ValidateCSV(inPath, schemaPath, _ string) (Result, []rowErr, error) {
 		return Result{}, nil, err
 	}
 	raw = canonicalizeBytes(raw)
+	if !utf8.Valid(raw) {
+		return Result{}, nil, fmt.Errorf("input is not valid UTF-8")
+	}
 
 	r := csv.NewReader(bytes.NewReader(raw))
 	r.FieldsPerRecord = -1
