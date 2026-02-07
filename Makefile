@@ -1,4 +1,4 @@
-.PHONY: test fmt build demo clean
+.PHONY: test fmt build demo verify clean
 
 VERSION ?= dev
 
@@ -12,8 +12,10 @@ build:
 	mkdir -p bin
 	go build -ldflags "-X main.version=$(VERSION)" -o bin/normalizer ./cmd/normalizer
 
-demo: build
-	./bin/normalizer demo --out ./out/demo
+demo:
+	go run ./cmd/normalizer demo --out ./out/demo
+
+verify: test demo
 
 clean:
 	rm -rf ./bin ./out
