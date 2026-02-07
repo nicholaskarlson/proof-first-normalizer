@@ -13,7 +13,7 @@ Deterministic CSV normalizer + validator.
 ## Quickstart
 
 ```bash
-go test ./...
+go test -count=1 ./...
 
 go run ./cmd/normalizer version
 go run ./cmd/normalizer demo --out ./out/demo
