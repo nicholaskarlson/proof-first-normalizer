@@ -2,6 +2,17 @@
 
 This tool normalizes CSV inputs deterministically and produces a clean output + an error file.
 
+## Canonical commands
+
+```bash
+# Proof gate (one command)
+make verify
+
+# Proof gates (portable, no Makefile)
+go test -count=1 ./...
+go run ./cmd/normalizer demo --out ./out/demo
+```
+
 ## Build
 
 ```bash

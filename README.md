@@ -10,6 +10,17 @@ Deterministic CSV normalizer + validator.
   - `errors.csv`
   - `report.json`
 
+## Canonical commands
+
+```bash
+# Proof gate (one command)
+make verify
+
+# Proof gates (portable, no Makefile)
+go test -count=1 ./...
+go run ./cmd/normalizer demo --out ./out/demo
+```
+
 ## Quickstart
 
 ```bash
