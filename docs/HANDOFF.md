@@ -35,3 +35,13 @@ normalizer demo --out outdir
 - No services/daemons
 - No Docker requirement
 - No network calls
+
+## Optional: Python check (stdlib only)
+
+```bash
+# Run the Go demo first (writes + verifies goldens)
+go run ./cmd/normalizer demo --out ./out/demo
+
+# Then run the optional Python verifier on one case
+python3 examples/python/verify_normalizer_case.py --out-root ./out/demo --case case02_errors
+```
