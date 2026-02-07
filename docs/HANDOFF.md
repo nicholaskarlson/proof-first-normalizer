@@ -5,7 +5,7 @@ This tool normalizes CSV inputs deterministically and produces a clean output + 
 ## Build
 
 ```bash
-go test ./...
+go test -count=1 ./...
 make build VERSION=v0.1.0
 ./bin/normalizer version
 ```
