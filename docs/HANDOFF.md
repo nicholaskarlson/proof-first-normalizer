@@ -25,13 +25,13 @@ make build VERSION=v0.1.0
 
 ```bash
 # Normalize a CSV
-normalizer normalize --in raw.csv --schema schema.json --out outdir
+normalizer normalize --in raw.csv --schema schema.json --out OUTDIR
 
 # Validate without outputting files
 normalizer validate --in raw.csv --schema schema.json
 
 # Run the demo (runs fixture cases and verifies outputs match goldens)
-normalizer demo --out outdir
+normalizer demo --out OUTDIR
 ```
 
 ## Definition of Done
