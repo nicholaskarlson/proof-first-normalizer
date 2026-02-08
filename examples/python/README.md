@@ -6,11 +6,11 @@ They provide a second, independent check that demo outputs are internally consis
 Run the Go demo first:
 
 ```bash
-go run ./cmd/normalizer demo --out ./out/demo
+go run ./cmd/normalizer demo --out ./out
 ```
 
 Then verify one case:
 
 ```bash
-python3 examples/python/verify_normalizer_case.py --out-root ./out/demo --case case02_errors
+python3 examples/python/verify_normalizer_case.py --out-root ./out --case case02_errors
 ```

@@ -2,13 +2,11 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
-	"reflect"
-	"strings"
+	"sort"
 
 	"github.com/nicholaskarlson/proof-first-normalizer/internal/normalizer"
 )
@@ -123,29 +121,28 @@ func cmdDemo(args []string) {
 		os.Exit(2)
 	}
 
-	// Keep this list small; add more cases incrementally via separate PRs.
-	cases := []string{
-		"case01",
-		"case02_errors",
-		"case03_bom_crlf",
-		"case04_quoted_fields",
-		"case05_optional_blanks",
-		"case06_dup_headers",
-		"case07_schema_dup_columns",
-		"case08_blank_lines",
-		"case09_ragged_rows",
-		"case10_header_reordered",
-		"case11_header_extra_column",
-		"case12_header_whitespace",
-		"case13_dup_headers_after_trim",
-		"case14_header_only",
-		"case15_invalid_utf8",
-		"case16_quoted_newline_reject",
+	inRoot := filepath.Join(root, "fixtures", "input")
+	entries, err := os.ReadDir(inRoot)
+	if err != nil {
+		fmt.Println("ERROR:", err)
+		os.Exit(2)
+	}
+
+	cases := make([]string, 0, len(entries))
+	for _, e := range entries {
+		if e.IsDir() {
+			cases = append(cases, e.Name())
+		}
+	}
+	sort.Strings(cases)
+	if len(cases) == 0 {
+		fmt.Println("ERROR: no fixture cases found under", inRoot)
+		os.Exit(2)
 	}
 
 	for _, c := range cases {
-		inCSV := filepath.Join(root, "fixtures", "input", c, "raw.csv")
-		schemaFile := filepath.Join(root, "fixtures", "input", c, "schema.json")
+		inCSV := filepath.Join(inRoot, c, "raw.csv")
+		schemaFile := filepath.Join(inRoot, c, "schema.json")
 		expDir := filepath.Join(root, "fixtures", "expected", c)
 		outDir := filepath.Join(*outRoot, c)
 
@@ -160,23 +157,30 @@ func cmdDemo(args []string) {
 
 		_ = os.RemoveAll(outDir)
 
-		expErrPath := filepath.Join(expDir, "error.txt")
-		if b, err := os.ReadFile(expErrPath); err == nil {
-			// Expected failure case: NormalizeCSV must return an error matching fixtures/expected/<case>/error.txt.
+		wantErrPath := filepath.Join(expDir, "error.txt")
+		if wantErr, errRead := os.ReadFile(wantErrPath); errRead == nil {
+			// Expected-fail case: NormalizeCSV must return an error matching fixtures/expected/<case>/error.txt byte-for-byte.
 			_, gotErr := normalizer.NormalizeCSV(inCSV, schemaFile, outDir, opt)
 			if gotErr == nil {
 				fmt.Printf("MISMATCH: %s expected failure but got success\n", c)
 				os.Exit(1)
 			}
-			exp := strings.TrimSpace(string(b))
-			got := strings.TrimSpace(gotErr.Error())
-			if got != exp {
-				fmt.Printf("MISMATCH: %s (error)\n  got: %s\n  exp: %s\n", c, got, exp)
+			gotErrB := []byte(gotErr.Error() + "\n")
+			if err := os.MkdirAll(outDir, 0o755); err != nil {
+				fmt.Println("ERROR:", err)
+				os.Exit(2)
+			}
+			if err := os.WriteFile(filepath.Join(outDir, "error.txt"), gotErrB, 0o644); err != nil {
+				fmt.Println("ERROR:", err)
+				os.Exit(2)
+			}
+			if !bytes.Equal(gotErrB, wantErr) {
+				fmt.Printf("MISMATCH: %s (error.txt)\n", c)
 				os.Exit(1)
 			}
 			continue
-		} else if err != nil && !os.IsNotExist(err) {
-			fmt.Printf("ERROR: %s: %v\n", c, err)
+		} else if errRead != nil && !os.IsNotExist(errRead) {
+			fmt.Printf("ERROR: %s: %v\n", c, errRead)
 			os.Exit(2)
 		}
 
@@ -185,8 +189,8 @@ func cmdDemo(args []string) {
 			os.Exit(2)
 		}
 
-		// Compare normalized/errors byte-for-byte.
-		for _, name := range []string{"normalized.csv", "errors.csv"} {
+		// Compare outputs byte-for-byte.
+		for _, name := range []string{"normalized.csv", "errors.csv", "report.json"} {
 			exp := filepath.Join(expDir, name)
 			got := filepath.Join(outDir, name)
 			eq, err := filesEqual(exp, got)
@@ -198,22 +202,6 @@ func cmdDemo(args []string) {
 				fmt.Printf("MISMATCH: %s (%s)\n", c, name)
 				os.Exit(1)
 			}
-		}
-
-		// Compare report.json structurally (ignore version so demo works on released binaries too).
-		expRep, err := readReport(filepath.Join(expDir, "report.json"))
-		if err != nil {
-			fmt.Println("ERROR:", err)
-			os.Exit(2)
-		}
-		gotRep, err := readReport(filepath.Join(outDir, "report.json"))
-		if err != nil {
-			fmt.Println("ERROR:", err)
-			os.Exit(2)
-		}
-		if !reportsEqualIgnoringVersion(expRep, gotRep) {
-			fmt.Printf("MISMATCH: %s (report.json)\n", c)
-			os.Exit(1)
 		}
 	}
 
@@ -231,24 +219,6 @@ func filesEqual(a, b string) (bool, error) {
 		return false, err
 	}
 	return bytes.Equal(ab, bb), nil
-}
-
-func readReport(path string) (normalizer.Report, error) {
-	b, err := os.ReadFile(path)
-	if err != nil {
-		return normalizer.Report{}, err
-	}
-	var r normalizer.Report
-	if err := json.Unmarshal(b, &r); err != nil {
-		return normalizer.Report{}, err
-	}
-	return r, nil
-}
-
-func reportsEqualIgnoringVersion(a, b normalizer.Report) bool {
-	a.Version = ""
-	b.Version = ""
-	return reflect.DeepEqual(a, b)
 }
 
 func findRepoRoot() (string, error) {
@@ -280,6 +250,6 @@ func usage() {
 	fmt.Println("  normalizer version   (--version, -v)")
 
 	fmt.Println()
-	fmt.Println("Demo cases:")
-	fmt.Println("  " + strings.Join([]string{"case01", "case02_errors"}, ", "))
+	fmt.Println("Demo:")
+	fmt.Println("  Scans fixtures/input/* (sorted) and verifies outputs match fixtures/expected/*.")
 }

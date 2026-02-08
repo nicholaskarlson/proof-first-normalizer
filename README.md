@@ -18,7 +18,7 @@ make verify
 
 # Proof gates (portable, no Makefile)
 go test -count=1 ./...
-go run ./cmd/normalizer demo --out ./out/demo
+go run ./cmd/normalizer demo --out ./out
 ```
 
 ## Quickstart
@@ -27,7 +27,7 @@ go run ./cmd/normalizer demo --out ./out/demo
 go test -count=1 ./...
 
 go run ./cmd/normalizer version
-go run ./cmd/normalizer demo --out ./out/demo
+go run ./cmd/normalizer demo --out ./out
 ```
 
 ## Handoff

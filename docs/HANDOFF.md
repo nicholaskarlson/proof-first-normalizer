@@ -10,7 +10,7 @@ make verify
 
 # Proof gates (portable, no Makefile)
 go test -count=1 ./...
-go run ./cmd/normalizer demo --out ./out/demo
+go run ./cmd/normalizer demo --out ./out
 ```
 
 ## Build
@@ -51,8 +51,8 @@ normalizer demo --out outdir
 
 ```bash
 # Run the Go demo first (writes + verifies goldens)
-go run ./cmd/normalizer demo --out ./out/demo
+go run ./cmd/normalizer demo --out ./out
 
 # Then run the optional Python verifier on one case
-python3 examples/python/verify_normalizer_case.py --out-root ./out/demo --case case02_errors
+python3 examples/python/verify_normalizer_case.py --out-root ./out --case case02_errors
 ```

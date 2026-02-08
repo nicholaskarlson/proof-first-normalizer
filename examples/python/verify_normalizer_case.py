@@ -31,7 +31,7 @@ def load_json(p: Path):
 
 def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out-root", default="out/demo", help="demo output root (contains <case>/...)")
+    ap.add_argument("--out-root", default="out", help="demo output root (contains <case>/...)")
     ap.add_argument("--case", default="case02_errors", help="case folder name")
     ap.add_argument("--compare-goldens", action="store_true", help="also compare output bytes to fixtures/expected")
     args = ap.parse_args()
@@ -40,14 +40,20 @@ def main() -> None:
     case = args.case
 
     expected_dir = repo / "fixtures" / "expected" / case
-    if (expected_dir / "error.txt").exists():
-        # The Go demo handles expected-fail cases by comparing the error string.
-        # This Python check is artifact-based, so we skip these cases.
-        print(f"SKIP: {case} is an expected-fail case (fixtures/expected/{case}/error.txt)")
-        return
 
     out_root = repo / args.out_root
     out_dir = out_root / case
+
+    # Expected-fail case: demo writes error.txt and compares it to fixtures.
+    if (expected_dir / "error.txt").exists():
+        got = out_dir / "error.txt"
+        assert got.exists(), f"missing error.txt: {got}"
+        read_text_lf(got)
+        if args.compare_goldens:
+            want = (expected_dir / "error.txt").read_bytes()
+            assert got.read_bytes() == want, "error.txt golden mismatch"
+        print("OK: expected-fail case error.txt is present and LF-deterministic.")
+        return
 
     norm_p = out_dir / "normalized.csv"
     errs_p = out_dir / "errors.csv"

@@ -13,7 +13,7 @@ build:
 	go build -ldflags "-X main.version=$(VERSION)" -o bin/normalizer ./cmd/normalizer
 
 demo:
-	go run ./cmd/normalizer demo --out ./out/demo
+	go run ./cmd/normalizer demo --out ./out
 
 verify: test demo
 
