@@ -4,3 +4,7 @@
 *.patch
 *.tmp
 .DS_Store
+
+# local patch artifacts
+*.patch
+*.patch.zip
